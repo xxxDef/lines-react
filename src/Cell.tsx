@@ -13,21 +13,22 @@ type CellProps = {
 
 export default function Cell({row, col, color}: CellProps) {
     
-    const game = useContext(GameContext);
+    const {state, dispatch} = useContext(GameContext);
     
     function handleClick(e: React.MouseEvent<HTMLDivElement>) {
-        console.log(`Cell click ${row}-${col}`);
-        
+
         if (color === null)
-            game.dispatch( {type: "moveTo", pos: {row, col}});
+            dispatch( {type: "moveTo", pos: {row, col}});
         else 
-            game.dispatch({type: "select", pos: {row, col}});
+            dispatch({type: "select", pos: {row, col}});
 
         e.stopPropagation();
     }
+
+    const selected = state.selected?.row === row && state.selected?.col === col;
     return (
         <div className={styles.cell} id={`cell${row}-${col}`} onClick={handleClick}>
-            <Circle row={row} col={col} color={color}/>
+            <Circle row={row} col={col} color={color} selected={selected}/>
         </div>
     );
 }

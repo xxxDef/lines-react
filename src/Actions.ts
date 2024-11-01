@@ -4,5 +4,5 @@ type action = "select" | "moveTo" | "reset";
 
 export type GameAction = {
     type: action,
-    pos: logic.Pos | null
+    pos?: logic.Pos
 }

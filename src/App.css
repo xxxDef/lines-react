@@ -30,34 +30,6 @@
 }
 
 
-@keyframes jumpAnimation {
-    from {
-        box-shadow: 5px 10px 10px -1px rgba(0, 0, 0, 0.598);
-        transform: translate(0px, -6px);
-        height: 100%;
-    } 
-    25%{
-        box-shadow: 5px 9px 10px -1px rgba(0, 0, 0, 0.598);
-        transform: translate(0px, -5px);
-        height: 100%;
-    }  
-    50%{
-        box-shadow: 5px 7px 10px -1px rgba(0, 0, 0, 0.598);
-        transform: translate(0px, -3px);
-        height: 100%;
-    }  
-    75%{
-        box-shadow: 4px 5px 10px -1px rgba(0, 0, 0, 0.598);
-        transform: translate(0px, -0px);
-        height: 97%;
-    }  
-    
-    to {
-        box-shadow: 3px 4px 10px -1px rgba(0, 0, 0, 0.598);
-        transform: translate(0px, 2px);
-        height: 95%;
-    }
-}
 
 @keyframes pathAnimation {
     from {

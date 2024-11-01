@@ -1,12 +1,23 @@
-
 import style from "./Circle.module.css";
 
-export type CircleProps = {row: number, col: number, color: number | null};
+export type CircleProps = {
+    row: number, 
+    col: number, 
+    color: number | null,
+    selected: boolean 
+};
 
-export function Circle({row, col, color} : CircleProps) {
+export function Circle({row, col, color, selected} : CircleProps) {
 
-    const colorStyle = color === null ? null : style["color"+color];
-    const classes = colorStyle === null ? "" : `${style.circle} ${colorStyle}`;
+    const classes: string[] = [];
+    if (color != null) {
+        classes.push(style["color"+color]);
+        classes.push(style.circle);       
+    };
+       
+    if (selected) {
+        classes.push(style.selected);
+    }
 
-    return <div className={classes} id={`circle${row}-${col}`}></div>
+    return <div className={classes.join(' ')} id={`circle${row}-${col}`}></div>
 }
