@@ -30,9 +30,9 @@
 }
 .cell {
     background-color: lightgray;
-    width: 55;
-    height: 55;
-    padding: 5;
+    width: 55px;
+    height: 55px;
+    padding: 5px;
     margin: 0;
     border-style: outset;
     box-sizing: border-box;
