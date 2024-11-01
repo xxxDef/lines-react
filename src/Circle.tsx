@@ -10,5 +10,3 @@ export function Circle({row, col, color} : CircleProps) {
 
     return <div className={classes} id={`circle${row}-${col}`}></div>
 }
-
-//{`circle color${color}`}

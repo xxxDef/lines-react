@@ -1,8 +1,8 @@
 export const Rows = 9;
 export const Colors = 5;
 
-type Pos = { readonly row: number, readonly col: number };
-type Color = number;
+export type Pos = { readonly row: number, readonly col: number };
+export type Color = number;
 
 type Distance = number | null;
 type Distances = Distance[][];
