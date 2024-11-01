@@ -1,0 +1,38 @@
+
+.circle {
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    
+    box-shadow: 3px 4px 10px -1px rgba(0, 0, 0, 0.813);
+    transition-property: box-shadow, transform;
+    transition-duration: 0.5s;  
+}
+
+.color0  {
+    background-image: -webkit-radial-gradient(25% 30%, circle,white, darkorange);   
+}
+.color1  {
+    background-image: -webkit-radial-gradient(25% 30%, circle,white, blue);   
+}
+.color2  {
+    background-image: -webkit-radial-gradient(25% 30%, circle,white, darkred);   
+}
+.color3  {
+    background-image: -webkit-radial-gradient(25% 30%, circle,white, darkgreen);   
+}
+.color4  {
+    background-image: -webkit-radial-gradient(25% 30%, circle,white, darkmagenta);   
+}
+
+.circle:hover  {
+    transform: translate(0px, -6px);
+    box-shadow: 5px 10px 10px -1px rgba(0, 0, 0, 0.598);
+}
+
+.selected  {
+    animation-name: jumpAnimation;
+    animation-duration: 0.3s;
+    animation-iteration-count: infinite; 
+    animation-direction: alternate;
+}

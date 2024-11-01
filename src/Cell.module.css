@@ -1,0 +1,11 @@
+
+.cell {
+    background-color: lightgray;
+    width: 55px;
+    height: 55px;
+    padding: 5px;
+    margin: 0;
+    border-style: outset;
+    box-sizing: border-box;
+    display: inline-block;
+}
