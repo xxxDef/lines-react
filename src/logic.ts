@@ -1,11 +1,14 @@
+import { stringify } from "querystring";
+import Row from "./Row";
+
 export const Rows = 9;
 export const Colors = 5;
 
 export type Pos = { readonly row: number, readonly col: number };
-export type Color = number;
+export type Color = number | null;
 
 type Distance = number | null;
-type Distances = Distance[][];
+
 
 class GameCell {
     color : Color | null = null;
@@ -28,13 +31,20 @@ export function forRange<T>(cnt: number, func: (i:number) => T) : T[] {
 export const getNextRnd = (max: number) => Math.floor(Math.random() * max);
 export const generateColor = () => getNextRnd(Colors);
 
-export function getPath(gameField: LinesGame, source: GameCell, target: Pos): Pos[] {
+export function getPath(gameField: Color[], start: number, end: number): number[] | null {
 
-    const field = createField(gameField, source);
+    const distances = gameField.map((v, i) => {
+        if (i === start)
+            return 0;
+        if (v !== null)
+            return null;    
+        return Infinity;
+    });
 
-    while (fillDistances(field));
+    logDistances(distances);
+    while (fillDistances(distances));
 
-    return tracePath(field, target);
+    return tracePath(distances, end);
 }
 
 export function findItemsToRemove(gameField: LinesGame, minLine = 5): GameCell[] {
@@ -45,45 +55,45 @@ export function findItemsToRemove(gameField: LinesGame, minLine = 5): GameCell[]
     return result;
 }
 
-function* getNeighbors(cur: Pos): Generator<Pos> {
-    if (cur.row > 0)
-        yield { row: cur.row - 1, col: cur.col };
-    if (cur.row < Rows - 1)
-        yield { row: cur.row + 1, col: cur.col };
-    if (cur.col > 0)
-        yield { row: cur.row, col: cur.col - 1 };
-    if (cur.col < Rows - 1)
-        yield { row: cur.row, col: cur.col + 1 };
+function* getNeighbors(index: number): Generator<number> {
+    
+    const row = Math.floor(index/Rows);
+    const col = index % Rows;
+    if (row > 0)
+        yield toIndex(row - 1, col);
+    if (row < Rows - 1)
+        yield toIndex(row + 1, col)
+    if (col > 0)
+        yield toIndex(row, col - 1);
+    if (col < Rows - 1)
+        yield toIndex(row, col + 1);
 }
 
-function* getAvailableNeighbors(distances: Distances, curPos: Pos): Generator<Pos> {
+function findMinNeighbor(distances: Distance[], index: number): number | null {
 
-    for (let pos of getNeighbors(curPos)) {
-        if (distances[pos.row][pos.col] != null)
-            yield pos;
-    }
-}
+    let res: number | null = null;
 
-function findMinDistance(distances: Distances, pos: Pos): { pos: Pos, distance: Distance } | null {
+    const neighbors = getNeighbors(index);
 
-    let resPos: Pos | null = null;
-    let resDist: Distance = null;
-
-    const available = getAvailableNeighbors(distances, pos);
-
-    for (let pos of available) {
-        const curDist = distances[pos.row][pos.col];
+    for (let i of neighbors) {
+        const curDist = distances[i];
         if (curDist === null)
             continue;
 
-        if (resDist === null || curDist < resDist) {
-            resPos = pos;
-            resDist = curDist;
+        if (res === null) {
+            res = i;
+            continue;
+        }
+
+        const resDist = distances[res];
+        if (resDist === null)
+            throw "algh error";
+
+        if (curDist < resDist) {
+            res = i;
         }
     }
-    if (resPos === null)
-        return null;
-    return { pos: resPos, distance: resDist };
+    return res;
 }
 
 function* generateDirections(): Generator<Pos | null> {
@@ -150,62 +160,79 @@ function* scanForCompletedLinesLines(gameField: LinesGame, minLine = 5): Generat
     }
 }
 
-function createField(gameField: LinesGame, source: GameCell): Distances {
-    return Array.from(
-        { length: Rows }, (_, row) => Array.from(
-            { length: Rows }, (_, col) => {
-                const cell = gameField.getCell(row, col);
-                return cell === source ? 0               // source
-                    : cell.color === null ? Infinity    // possible target
-                        : null;                             // occuped
-            }));
-}
-
-function fillDistances(distances: Distances): number {
+function fillDistances(distances: (number|null)[]): number {
     let found = 0;
-    for (let row = 0; row < distances.length; ++row) {
-        for (let col = 0; col < distances[row].length; ++col) {
-            const curLen = distances[row][col];
-            if (curLen === null) // occuped
-                continue;
 
-            const min = findMinDistance(distances, { row, col });
+    for(let i = 0; i < distances.length; ++i) {
+        
+        const curDist = distances[i];
+        if (curDist === null)
+            continue; // occuped
 
-            if (min === null) {
-                // no neighbors arround, exclude from next calculation
-                distances[row][col] = null;
-                continue;
-            }
-
-            if (min.distance === Infinity) {
-                // no already calculated neighbords arround, skip this step 
-                continue;
-            }
-
-            if (min.distance === null)
-                throw "invalid alghoritm: should be not null";
-
-            const nextStep = min.distance + 1;
-            if (curLen > nextStep) {
-                distances[row][col] = nextStep;
-                found++;
-            }
+        const min = findMinNeighbor(distances, i);
+        if (min === null) {
+            // no neighbors arround, exclude from next calculation
+            distances[i] = null;
+            continue;
         }
+
+        const minDist = distances[min];
+        if (minDist === null)
+            throw "invalid alghoritm";
+
+        if (minDist === Infinity) {
+            // no already calculated neighbords arround, skip this step 
+            continue;
+        }
+
+        const nextDist = minDist+1;
+        if (nextDist < curDist) {
+            distances[i] = nextDist;
+            found++;
+        }        
     }
+
+    logDistances(distances);
+
+    
     return found;
 }
 
-export function tracePath(distances: Distances, curPos: Pos): Pos[] {
+function logDistances(distances: Distance[]) {
+    const res: string[] = [];
+    let cur: string[] = [];
+    for (let d of distances) {
+        const ch = d === null ? "XX"
+            : d === Infinity ? "In"
+            : d.toString().padStart(2, "0");
+        cur.push(ch);
+        if (cur.length === Rows) {
+            res.push(cur.join(" "));
+            cur = [];
+        }
+    }
+    console.log(res.join("\n"));
+}
 
-    const min = findMinDistance(distances, curPos)
+export function tracePath(distances: Distance[], end: number): number[] | null{
+
+    if (distances[end] === null)
+        throw "invalid args";
+    if (distances[end] === Infinity)
+        return null; // no path
+
+    const min = findMinNeighbor(distances, end)
 
     if (min === null)
         throw "alghoritm error: no near neighbor";
 
-    if (min.distance === 0)
-        return [min.pos];
+    if (distances[min] === 0)
+        return [min];
 
-    var next = tracePath(distances, min.pos);
-    return [...next, min.pos];
+    var next = tracePath(distances, min);
+    if (next === null)
+        throw "invalid algh";
+
+    return [...next, min];
 }
 
