@@ -17,6 +17,10 @@ class LinesGame {
     }
 }
 
+export function toIndex(row: number, col: number): number {
+    return row * Rows + col;
+}
+
 export function forRange<T>(cnt: number, func: (i:number) => T) : T[] {
     return Array.from({length: cnt}, (_, i) => func(i)); 
 }
