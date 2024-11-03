@@ -31,15 +31,6 @@
 
 
 
-@keyframes pathAnimation {
-    from {
-        opacity: 1;
-        
-    } 
-    to {
-        opacity: 0.1;
-    }
-}
 
 @keyframes removingAnimation {
     from {

@@ -36,8 +36,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             return {
                 ...state,
                 selected: null,
-                path: path,
-                pathColor: curColor,
+                path: {
+                    cells: path,
+                    color: curColor,
+                    curIndex: 0
+                },
                 gameField : state.gameField.map((v,i) => {
                     if (i === state.selected)
                         return null; // remove color in start pos
@@ -54,6 +57,32 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ...state,
             gameField: state.gameField.map((v, i) => 
                 i === action.index ? logic.generateColor() : v)
+        }
+
+        case "movePath" : {
+
+            if (state.path === null) 
+                throw "invalid algh, path should not be null here";
+            const newStep = state.path.curIndex + 1;
+            if (newStep >= state.path.cells.length) {
+                // finish showing path
+                console.log("stop tracing path");
+                return {
+                    ...state,
+                    path: null
+                };
+            }
+            else {
+                console.log("next tracing path", newStep);
+                return {
+                    ...state,
+                    path: {
+                        ...state.path,
+                        curIndex: newStep
+                    } 
+                };
+            }
+            
         }
         
         default: throw `unexpected action ${action.type}`;

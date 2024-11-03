@@ -32,10 +32,23 @@ export default function Cell({index}: CellProps) {
         e.stopPropagation();
     }
 
+    let showColor = color;
+    let tracePathColor: logic.Color = null;
+
+    if (state.path != null) {
+        
+        tracePathColor = state.path.cells.slice(0, state.path.curIndex + 1).includes(index)
+            ? state.path?.color : null;
+
+        showColor = state.path.cells[state.path.cells.length - 1] === index
+            ? null : showColor;
+
+    } 
     const selected = state.selected === index;
+
     return (
         <div className={styles.cell} id={`cell${index}`} onClick={handleClick} onContextMenu={handleRightClick}>
-            <Circle index={index}   color={color} selected={selected}/>
+            <Circle index={index}   color={showColor} selected={selected} pathColor={tracePathColor}/>
         </div>
     );
 }

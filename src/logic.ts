@@ -227,7 +227,7 @@ export function tracePath(distances: Distance[], end: number): number[] | null{
         throw "alghoritm error: no near neighbor";
 
     if (distances[min] === 0)
-        return [min];
+        return [min, end];
 
     var next = tracePath(distances, min);
     if (next === null)
