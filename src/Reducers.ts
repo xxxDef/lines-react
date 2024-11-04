@@ -51,7 +51,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             };
         }
         
-        case "reset": return {  ...initialState, high: state.high }
+        case "reset": return {  
+            ...initialState, 
+            high: state.high 
+        }
         
         case "addCircle": return {
             ...state,
@@ -59,31 +62,73 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                 i === action.index ? logic.generateColor() : v)
         }
 
-        case "movePath" : {
+        case "clearPath" : {
+            if (state.path === null) 
+                throw "invalid algh, path should not be null here";
+            if (state.path.curIndex + 1 !== state.path.cells.length)
+                throw "invalid alg";
+            return {
+                ...state,
+                path: null
+            };
+        }
+
+        case "tracePath" : {
 
             if (state.path === null) 
                 throw "invalid algh, path should not be null here";
             const newStep = state.path.curIndex + 1;
-            if (newStep >= state.path.cells.length) {
-                // finish showing path
-                console.log("stop tracing path");
-                return {
-                    ...state,
-                    path: null
-                };
-            }
-            else {
-                console.log("next tracing path", newStep);
-                return {
-                    ...state,
-                    path: {
-                        ...state.path,
-                        curIndex: newStep
-                    } 
-                };
-            }
+            if (newStep >= state.path.cells.length) 
+                throw "invalid alg";
             
+            return {
+                ...state,
+                path: {
+                    ...state.path,
+                    curIndex: newStep
+                } 
+            };
         }
+
+        case "nextTurn": {
+
+            const nextTurnInfo = logic.nextTurn(state.gameField, state.nextCircles, state.score, state.high);
+            const needAnimation = nextTurnInfo.removing?.length > 0 || nextTurnInfo.growing?.length > 0;
+            return {
+                ...state,
+                gameField: nextTurnInfo.gameField,
+                score: nextTurnInfo.score,
+                high: nextTurnInfo.high,
+                isGameEnd: nextTurnInfo.isGameEnd,
+                animation: !needAnimation ? null : {
+                    animation: 10,
+                    growing: nextTurnInfo.growing,
+                    removing: nextTurnInfo.removing
+                }
+            };
+        }
+
+        case "animate": {
+            if (state.animation === null)
+                throw "invlid animation";
+            if (state.animation.animation > 0) {
+                return {
+                    ...state,
+                    animation: {
+                        ...state.animation,
+                        animation: state.animation.animation - 1
+                    }
+                }
+            } 
+            else {
+                return {
+                    ...state,
+                    animation: null,
+                }
+            }
+
+        }
+
         
         default: throw `unexpected action ${action.type}`;
     }

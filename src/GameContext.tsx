@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { GameAction } from "./Actions";
 import { GameState, initialState } from "./GameState";
 import { gameReducer } from "./Reducers";
-import PathProvider from "./PathProvider";
+import GameLoopProvider from "./GameLoopProvider";
 
 
 type Game = {
@@ -19,9 +19,9 @@ export default function GameProvider({ children }: { children: ReactNode }) {
 
     return (
         <GameContext.Provider value={{ state: game, dispatch: dispatch }}>
-            <PathProvider>
+            <GameLoopProvider>
                 {children}
-            </PathProvider>
+            </GameLoopProvider>
         </GameContext.Provider>
     );
 }

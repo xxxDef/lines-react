@@ -1,5 +1,3 @@
-import { stringify } from "querystring";
-import Row from "./Row";
 
 export const Rows = 9;
 export const Colors = 5;
@@ -8,17 +6,6 @@ export type Pos = { readonly row: number, readonly col: number };
 export type Color = number | null;
 
 type Distance = number | null;
-
-
-class GameCell {
-    color : Color | null = null;
-}
-
-class LinesGame {
-    getCell(row:number, col: number): GameCell {
-        return new GameCell();
-    }
-}
 
 export function toIndex(row: number, col: number): number {
     return row * Rows + col;
@@ -31,7 +18,7 @@ export function forRange<T>(cnt: number, func: (i:number) => T) : T[] {
 export const getNextRnd = (max: number) => Math.floor(Math.random() * max);
 export const generateColor = () => getNextRnd(Colors);
 
-export function getPath(gameField: Color[], start: number, end: number): number[] | null {
+export function getPath(gameField: readonly Color[], start: number, end: number): number[] | null {
 
     const distances = gameField.map((v, i) => {
         if (i === start)
@@ -51,8 +38,8 @@ export function getPath(gameField: Color[], start: number, end: number): number[
     return path;
 }
 
-export function findItemsToRemove(gameField: LinesGame, minLine = 5): GameCell[] {
-    const result: GameCell[] = [];
+export function findItemsToRemove(gameField: Color[], minLine = 5): number[] {
+    const result: number[] = [];
 
     for (let line of scanForCompletedLinesLines(gameField, minLine))
         result.push(...line);
@@ -100,18 +87,18 @@ function findMinNeighbor(distances: Distance[], index: number): number | null {
     return res;
 }
 
-function* generateDirections(): Generator<Pos | null> {
+function* generateDirections(): Generator<number | null> {
     // horisontal
     for (let row = 0; row < Rows; ++row) {
         for (let col = 0; col < Rows; ++col)
-            yield { row, col };
+            yield toIndex(row, col);
         yield null;
     }
 
     // vertical
     for (let col = 0; col < Rows; ++col) {
         for (let row = 0; row < Rows; ++row)
-            yield { row, col };
+            yield toIndex( row, col );
         yield null;
     }
 
@@ -120,7 +107,7 @@ function* generateDirections(): Generator<Pos | null> {
         for (let row = 0; row < Rows; row++) {
             let col = row - diff;
             if (col >= 0 && col < Rows)
-                yield { row, col };
+                yield toIndex(row, col);
 
         }
         yield null;
@@ -130,38 +117,43 @@ function* generateDirections(): Generator<Pos | null> {
         for (let row = 0; row < Rows; row++) {
             let col = sum - row;
             if (col >= 0 && col < Rows) {
-                yield { row, col };
+                yield toIndex( row, col );
             }
         }
+        yield null;
     }
 }
 
-function* scanForCompletedLinesLines(gameField: LinesGame, minLine = 5): Generator<GameCell[]> {
+function* scanForCompletedLinesLines(gameField: Color[], minLine = 5): Generator<number[]> {
 
-    let color: Color | null = null;
-    let line: GameCell[] = [];
+    let lineColor: Color | null = null;
+    let line: number[] = [];
 
     for (let pos of generateDirections()) {
 
-        const cell = pos === null ? null : gameField.getCell(pos.row, pos.col);
-
-        if (cell === null || color === null || cell.color !== color) {
+        const cellColor = pos === null ? null : gameField[pos];
+       
+        if (cellColor === null || lineColor === null || cellColor !== lineColor) {
             if (line.length >= minLine)
                 yield line;
 
-            if (cell != null) {
-                line = [cell];
-                color = cell.color;
+            if (cellColor != null && pos !== null) {
+                line = [pos];
+                lineColor = cellColor;
             }
             else {
                 line = [];
-                color = null;
+                lineColor = null;
             }
         }
         else {
-            line.push(cell);
+            if (pos === null)
+                throw "pos should not be null";
+            line.push(pos);
         }
     }
+    if (line.length !== 0)
+        throw "line should be returned inside for";
 }
 
 function fillDistances(distances: (number|null)[]): number {
@@ -234,5 +226,109 @@ export function tracePath(distances: Distance[], end: number): number[] | null{
         throw "invalid algh";
 
     return [...next, end];
+}
+
+function getEmptyPlace(gameField : Color[]) : number | null {
+        
+    const emptyCells = Array.from(getEmptyCellIndexes(gameField));
+    if (emptyCells.length === 0)
+        return null;
+
+    const index = getNextRnd(emptyCells.length);
+    if (index <0 || index >= emptyCells.length)
+        throw Error("invalid rnd for empty cell");
+    const res = emptyCells[index];
+
+    if (gameField[res] !== null)
+        throw Error("invalid find empty cell");
+    return res;
+}
+
+function removeItems(gameField: Color[]): RemovingItem[] {
+    
+    const itemsToRemove = findItemsToRemove(gameField);   
+    const res: RemovingItem[] = [];
+
+    for(let index of itemsToRemove) {
+        const color = gameField[index];
+        if (color === null)
+            throw "can't remove empty circle";
+        gameField[index] = null;
+        res.push({index, color});
+    }
+    return res;
+}
+
+function* getEmptyCellIndexes(gameField: readonly Color[]): Generator<number> {
+    for (let i = 0; i < gameField.length; ++i) 
+        if (gameField[i] === null)
+            yield i;
+}
+function addItem(gameField: Color[], index: number, color: Color) : number {
+    if (gameField[index] !== null) 
+        throw Error(`can't add circle in non empty cell gameField[${index}]=${gameField[index]}`);
+    gameField[index] = color;
+    return index;
+}
+
+function getScore(removedCount : number) : number {
+    if (removedCount < 5)
+        return 0;
+    
+    return 5 + (removedCount - 5) * 2; // x2 bonus for next    
+}
+
+export function getNextCircles() : Color[] {
+    return forRange(3, (i) => generateColor());
+}
+
+export type RemovingItem = {
+    index: number, color: Color
+}
+
+type NextTurnResult = {
+    gameField: Color[],
+    nextCircles: Color[],
+    growing: number[],
+    removing: RemovingItem[],
+    score: number,
+    high: number, 
+    isGameEnd: boolean;
+}
+export function nextTurn(gameField: readonly Color[], nextCircles: readonly Color[], score: number, high: number): NextTurnResult {
+    
+    const newGameField = [...gameField];
+    const growing: number[] = []; 
+
+    const removing = removeItems(newGameField);
+
+    let isGameEnd = false;
+    if (removing.length === 0) {// no items were removed, add 3 new
+        
+        for (let nextCircle of nextCircles) {
+            let newPlace = getEmptyPlace(newGameField);
+            if (newPlace === null) {
+                isGameEnd = true;
+                break;
+            }
+            growing.push(addItem(newGameField, newPlace, nextCircle));           
+            removing.push(...removeItems(newGameField))
+        }
+    }
+
+    const newNextCircles = getNextCircles(); 
+    const newScore = score + getScore(removing.length);
+
+    const newHigh = isGameEnd && high < newScore ? newScore : high;
+
+    return {
+        gameField: newGameField,
+        removing: removing,
+        growing: growing,
+        nextCircles: newNextCircles,
+        score: newScore,
+        high: newHigh,
+        isGameEnd: isGameEnd
+    };
 }
 

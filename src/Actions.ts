@@ -1,8 +1,16 @@
 import * as logic from './logic'
 
-type action = "select" | "moveTo" | "reset" | "addCircle" | "movePath";
+type action = "select" 
+    | "moveTo" 
+    | "reset" 
+    | "addCircle" 
+    | "tracePath" 
+    | "clearPath" 
+    | "nextTurn"
+    | "animate";
 
 export type GameAction = {
     type: action,
     index?: number
 }
+

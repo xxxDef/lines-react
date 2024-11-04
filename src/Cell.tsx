@@ -41,7 +41,7 @@ export default function Cell({index}: CellProps) {
 
         if (i !== -1) {// current cell is in path 
             
-            console.log(`item ${index} of color ${color} is in trace in pos ${i}`);
+            //console.log(`item ${index} of color ${color} is in trace in pos ${i}`);
 
             // do not show real circle in this place until path is tracing
             // it can be already moved circle or added next circles

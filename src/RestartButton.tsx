@@ -7,6 +7,8 @@ export default function RestartButton() {
     
     function click() {
         dispatch({type:"reset"});
+        dispatch({type:"nextTurn"});
+
     }
     return (
         <div><button id="restart" onClick={click}>Restart</button></div>
