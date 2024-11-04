@@ -31,24 +31,33 @@ export default function Cell({index}: CellProps) {
         e.preventDefault();
         e.stopPropagation();
     }
-
+   
     let showColor = color;
     let tracePathColor: logic.Color = null;
 
     if (state.path != null) {
         
-        tracePathColor = state.path.cells.slice(0, state.path.curIndex + 1).includes(index)
-            ? state.path?.color : null;
+        const i = state.path.cells.indexOf(index);
 
-        showColor = state.path.cells[state.path.cells.length - 1] === index
-            ? null : showColor;
+        if (i !== -1) {// current cell is in path 
+            
+            console.log(`item ${index} of color ${color} is in trace in pos ${i}`);
 
+            // do not show real circle in this place until path is tracing
+            // it can be already moved circle or added next circles
+            showColor = null; 
+            
+            if (i <= state.path.curIndex) {
+                // current cell is in already traced path (from 0 to curIndex)
+                tracePathColor = state.path.color;
+            }
+        }
     } 
     const selected = state.selected === index;
 
     return (
         <div className={styles.cell} id={`cell${index}`} onClick={handleClick} onContextMenu={handleRightClick}>
-            <Circle index={index}   color={showColor} selected={selected} pathColor={tracePathColor}/>
+            <Circle index={index}  color={showColor} selected={selected} pathColor={tracePathColor}/>
         </div>
     );
 }

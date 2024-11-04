@@ -41,10 +41,14 @@ export function getPath(gameField: Color[], start: number, end: number): number[
         return Infinity;
     });
 
-    logDistances(distances);
+    //logDistances(distances);
     while (fillDistances(distances));
 
-    return tracePath(distances, end);
+    //logDistances(distances);
+
+    const path = tracePath(distances, end);
+    //console.log("trace path", path);
+    return path;
 }
 
 export function findItemsToRemove(gameField: LinesGame, minLine = 5): GameCell[] {
@@ -191,10 +195,6 @@ function fillDistances(distances: (number|null)[]): number {
             found++;
         }        
     }
-
-    logDistances(distances);
-
-    
     return found;
 }
 
@@ -221,18 +221,18 @@ export function tracePath(distances: Distance[], end: number): number[] | null{
     if (distances[end] === Infinity)
         return null; // no path
 
+    if (distances[end] === 0)
+        return [end];
+
     const min = findMinNeighbor(distances, end)
 
     if (min === null)
         throw "alghoritm error: no near neighbor";
 
-    if (distances[min] === 0)
-        return [min, end];
-
     var next = tracePath(distances, min);
     if (next === null)
         throw "invalid algh";
 
-    return [...next, min];
+    return [...next, end];
 }
 
