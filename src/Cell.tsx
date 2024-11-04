@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import styles from "./Cell.module.css";
 import { Circle, CircleEffect } from "./Circle";
-import * as logic from './logic'
+import {Color} from './logic'
 
 import { GameContext } from "./GameContext";
 
@@ -36,7 +36,7 @@ export default function Cell({index}: CellProps) {
 
 
         
-    function getEffect(): {color: logic.Color, effect: CircleEffect} {
+    function getEffect(): {color: Color, effect: CircleEffect} {
         
         if (state.selected === index)
             return {color, effect: CircleEffect.Selected};

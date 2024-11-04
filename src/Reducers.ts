@@ -1,7 +1,7 @@
-import { log } from "console";
+
 import { GameAction } from "./Actions";
 import { GameState, initialState } from "./GameState";
-import * as logic from "./logic";
+import {Colors, getNextRnd, getPath, nextTurn} from "./logic";
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
     
@@ -25,7 +25,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             if (state.selected === null)
                 return {...state};
 
-            const path = logic.getPath(state.gameField, state.selected, action.index);
+            const path = getPath(state.gameField, state.selected, action.index);
             if (path === null)
                 return {...state}; // no way 
 
@@ -59,7 +59,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         case "addCircle": return {
             ...state,
             gameField: state.gameField.map((v, i) => 
-                i === action.index ? logic.getNextRnd(logic.Colors) : v)
+                i === action.index ? getNextRnd(Colors) : v)
         }
 
         case "clearPath" : {
@@ -92,7 +92,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
         case "nextTurn": {
 
-            const nextTurnInfo = logic.nextTurn(state.gameField, state.nextCircles, state.score, state.high);
+            const nextTurnInfo = nextTurn(state.gameField, state.nextCircles, state.score, state.high);
             const needAnimation = nextTurnInfo.removing?.length > 0 || nextTurnInfo.growing?.length > 0;
             return {
                 ...state,
@@ -102,7 +102,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                 nextCircles: nextTurnInfo.nextCircles,
                 isGameEnd: nextTurnInfo.isGameEnd,
                 animation: !needAnimation ? null : {
-                    animation: 33,
+                    remaining: 33,
                     growing: nextTurnInfo.growing,
                     removing: nextTurnInfo.removing
                 }
@@ -112,12 +112,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         case "animate": {
             if (state.animation === null)
                 throw "invlid animation";
-            if (state.animation.animation > 0) {
+            if (state.animation.remaining > 0) {
                 return {
                     ...state,
                     animation: {
                         ...state.animation,
-                        animation: state.animation.animation - 1
+                        remaining: state.animation.remaining - 1
                     }
                 }
             } 
@@ -130,7 +130,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
         }
 
-        
         default: throw `unexpected action ${action.type}`;
     }
 }

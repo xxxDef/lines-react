@@ -8,9 +8,12 @@ export default function GameLoopProvider({children}: { children: ReactNode }) {
 
     useEffect(() => {
 
+        if (state.path === null && state.animation === null)
+            return;
+        
          const intervalId = setInterval(() => {
             gameLoop(state, dispatch);
-        }, 30);
+        }, 20);
 
         return () => {           
             clearInterval(intervalId);
@@ -29,27 +32,9 @@ export default function GameLoopProvider({children}: { children: ReactNode }) {
                 dispatch({type: "nextTurn"});
             }
         }
-        if (state.animation != null) {
+        if (state.animation !== null) {
             dispatch({type: "animate"});
         }
-        // if (state.growing !== null) { // grove new circles
-        //     if (state.path.curIndex + 1 < state.path.cells.length) {
-        //         dispatch( {type: "movePath"});
-        //     }
-        //     else {
-        //         dispatch({type: "clearPath"});
-        //         dispatch({type: "nextTurn"});
-        //     }
-        // }
-        // if (state.removing !== null) { // grove new circles
-        //     if (state.path.curIndex + 1 < state.path.cells.length) {
-        //         dispatch( {type: "movePath"});
-        //     }
-        //     else {
-        //         dispatch({type: "clearPath"});
-        //         dispatch({type: "nextTurn"});
-        //     }
-        // }
     }
 
     return <>{children}</>

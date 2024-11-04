@@ -1,35 +1,32 @@
-import * as logic from "./logic"
+import {Color, getNextCircles, RemovingItem, Rows} from "./logic"
 
-
-export type PathState = {
+export type Path = {
     cells: number[]
-    color: logic.Color,
+    color: Color,
     curIndex: number,
 }
 
 export type Animation = {
-    removing: logic.RemovingItem[] | null,
+    removing: RemovingItem[] | null,
     growing: number[] | null,
-    animation: number,
+    remaining: number,
 }
-
-
 
 export type GameState = {
 
-    gameField: readonly logic.Color[],
+    gameField: readonly Color[],
     selected: number | null,
-    path: PathState | null,
+    path: Path | null,
     high: number,
     score: number,
-    nextCircles: logic.Color[],
+    nextCircles: Color[],
     animation: Animation | null,
     isGameEnd: boolean
 };
 
 export const initialState: GameState = {
-    gameField: Array(logic.Rows * logic.Rows).fill(null),
-    nextCircles: logic.getNextCircles(),
+    gameField: Array(Rows * Rows).fill(null),
+    nextCircles: getNextCircles(),
     selected: null,
     score: 0,
     high: 0,

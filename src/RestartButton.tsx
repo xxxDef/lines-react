@@ -1,16 +1,16 @@
 import { useContext } from "react";
 import { GameContext } from "./GameContext";
+import styles from "./RestartButton.module.css";
 
 export default function RestartButton() {
     
-    const {state, dispatch} = useContext(GameContext);
+    const {dispatch} = useContext(GameContext);
     
     function click() {
         dispatch({type:"reset"});
         dispatch({type:"nextTurn"});
-
     }
     return (
-        <div><button id="restart" onClick={click}>Restart</button></div>
+        <div><button className={styles.restartButton} id="restart" onClick={click}>Restart</button></div>
     );
 }

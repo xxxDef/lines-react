@@ -1,4 +1,4 @@
-import { createContext, useReducer, Dispatch } from "react";
+import { createContext, useReducer, Dispatch, useEffect } from "react";
 import { ReactNode } from "react";
 import { GameAction } from "./Actions";
 import { GameState, initialState } from "./GameState";
@@ -15,10 +15,16 @@ export const GameContext = createContext<Game>({ state: initialState, dispatch: 
 
 export default function GameProvider({ children }: { children: ReactNode }) {
 
-    const [game, dispatch] = useReducer(gameReducer, initialState);
+    const [state, dispatch] = useReducer(gameReducer, initialState);
+
+    useEffect(() => {
+        //console.log("***")
+        dispatch({type:"nextTurn"});
+    }, []);
+
 
     return (
-        <GameContext.Provider value={{ state: game, dispatch: dispatch }}>
+        <GameContext.Provider value={{ state, dispatch }}>
             <GameLoopProvider>
                 {children}
             </GameLoopProvider>

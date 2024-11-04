@@ -1,4 +1,3 @@
-import * as logic from './logic'
 
 type action = "select" 
     | "moveTo" 
