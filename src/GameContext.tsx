@@ -5,7 +5,6 @@ import { GameState, initialState } from "./GameState";
 import { gameReducer } from "./Reducers";
 import GameLoopProvider from "./GameLoopProvider";
 
-
 type Game = {
     state: GameState,
     dispatch: Dispatch<GameAction>
