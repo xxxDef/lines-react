@@ -10,7 +10,7 @@ export default function GameLoopProvider({children}: { children: ReactNode }) {
 
         if (state.path === null && state.animation === null)
             return;
-        
+
          const intervalId = setInterval(() => {
             gameLoop(state, dispatch);
         }, 20);
@@ -18,7 +18,7 @@ export default function GameLoopProvider({children}: { children: ReactNode }) {
         return () => {           
             clearInterval(intervalId);
         }
-    }, [state.animation, state.path])
+    }, [state, dispatch, state.animation, state.path])
 
     function gameLoop(state: GameState, dispatch: React.Dispatch<GameAction>) {
         
