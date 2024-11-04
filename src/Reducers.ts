@@ -59,7 +59,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         case "addCircle": return {
             ...state,
             gameField: state.gameField.map((v, i) => 
-                i === action.index ? logic.generateColor() : v)
+                i === action.index ? logic.getNextRnd(logic.Colors) : v)
         }
 
         case "clearPath" : {
@@ -99,9 +99,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
                 gameField: nextTurnInfo.gameField,
                 score: nextTurnInfo.score,
                 high: nextTurnInfo.high,
+                nextCircles: nextTurnInfo.nextCircles,
                 isGameEnd: nextTurnInfo.isGameEnd,
                 animation: !needAnimation ? null : {
-                    animation: 10,
+                    animation: 33,
                     growing: nextTurnInfo.growing,
                     removing: nextTurnInfo.removing
                 }

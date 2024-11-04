@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styles from "./Cell.module.css";
-import { Circle } from "./Circle";
+import { Circle, CircleEffect } from "./Circle";
 import * as logic from './logic'
 
 import { GameContext } from "./GameContext";
@@ -8,6 +8,8 @@ import { GameContext } from "./GameContext";
 type CellProps = {
     index:number, 
 };
+
+
 
 export default function Cell({index}: CellProps) {
     
@@ -31,33 +33,46 @@ export default function Cell({index}: CellProps) {
         e.preventDefault();
         e.stopPropagation();
     }
-   
-    let showColor = color;
-    let tracePathColor: logic.Color = null;
 
-    if (state.path != null) {
+
         
-        const i = state.path.cells.indexOf(index);
+    function getEffect(): {color: logic.Color, effect: CircleEffect} {
+        
+        if (state.selected === index)
+            return {color, effect: CircleEffect.Selected};
 
-        if (i !== -1) {// current cell is in path 
+        if (state.animation !== null) {
+            if (state.animation.growing !== null) {
+                if (state.animation.growing.indexOf(index) !== -1)
+                    return {color, effect: CircleEffect.Growing};
+            }
             
-            //console.log(`item ${index} of color ${color} is in trace in pos ${i}`);
-
-            // do not show real circle in this place until path is tracing
-            // it can be already moved circle or added next circles
-            showColor = null; 
-            
-            if (i <= state.path.curIndex) {
-                // current cell is in already traced path (from 0 to curIndex)
-                tracePathColor = state.path.color;
+            if (state.animation.removing !== null) {
+                const cur = state.animation.removing.find(v => v.index === index);
+                if (cur !== undefined) 
+                    return {color: cur.color, effect: CircleEffect.Removing};
             }
         }
-    } 
-    const selected = state.selected === index;
 
+        if (state.path !== null) {
+            const i = state.path.cells.indexOf(index);
+            if (i !== -1) { // current cell is in path 
+                if (i <= state.path.curIndex) {
+                    return i <= state.path.curIndex
+                        ? {color: state.path.color, effect: CircleEffect.Path}
+                        : {color: null, effect: CircleEffect.Path};
+                    
+                }
+            }
+        }
+        return {color: color, effect: CircleEffect.None};
+    }
+
+    const effect = getEffect();
+   
     return (
         <div className={styles.cell} id={`cell${index}`} onClick={handleClick} onContextMenu={handleRightClick}>
-            <Circle index={index}  color={showColor} selected={selected} pathColor={tracePathColor}/>
+            <Circle index={index}  color={effect.color} effect={effect.effect}/>
         </div>
     );
 }

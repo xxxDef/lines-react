@@ -2,7 +2,6 @@
 export const Rows = 9;
 export const Colors = 5;
 
-export type Pos = { readonly row: number, readonly col: number };
 export type Color = number | null;
 
 type Distance = number | null;
@@ -16,7 +15,6 @@ export function forRange<T>(cnt: number, func: (i:number) => T) : T[] {
 }
 
 export const getNextRnd = (max: number) => Math.floor(Math.random() * max);
-export const generateColor = () => getNextRnd(Colors);
 
 export function getPath(gameField: readonly Color[], start: number, end: number): number[] | null {
 
@@ -279,7 +277,7 @@ function getScore(removedCount : number) : number {
 }
 
 export function getNextCircles() : Color[] {
-    return forRange(3, (i) => generateColor());
+    return forRange(3, (i) => getNextRnd(Colors));
 }
 
 export type RemovingItem = {
