@@ -2,7 +2,6 @@ import style from "./Circle.module.css";
 import {Color}  from "./logic";
 
 export type CircleProps = {
-    index: number, 
     color: Color,
     effect: CircleEffect
 };
@@ -14,7 +13,7 @@ export enum CircleEffect {
     Removing,
     Selected
 }
-export function Circle({index, color, effect} : CircleProps) {
+export function Circle({color, effect} : CircleProps) {
 
     const classes: string[] = [];
     if (color !== null) {
@@ -36,12 +35,12 @@ export function Circle({index, color, effect} : CircleProps) {
         case CircleEffect.Growing:
             classes.push(style.growing);
             break;
-            
+
             case CircleEffect.None:
                 break;
         default:
             throw "unknow effect";       
     }
     
-    return <div className={classes.join(' ')} id={`circle${index}`}></div>
+    return <div className={classes.join(' ')}></div>
 }

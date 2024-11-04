@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import styles from "./Cell.module.css";
 import { Circle, CircleEffect } from "./Circle";
 import * as logic from './logic'
@@ -72,7 +72,7 @@ export default function Cell({index}: CellProps) {
    
     return (
         <div className={styles.cell} id={`cell${index}`} onClick={handleClick} onContextMenu={handleRightClick}>
-            <Circle index={index}  color={effect.color} effect={effect.effect}/>
+            <Circle color={effect.color} effect={effect.effect}/>
         </div>
     );
 }
